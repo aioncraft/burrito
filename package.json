@@ -1,0 +1,16 @@
+{
+  "name": "burrito",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run index.ts",
+    "typecheck": "bun check"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.4",
+    "typescript": "7.0.2"
+  },
+  "description": "Tooling for building and maintaining Firefox-based browsers.",
+  "packageManager": "bun@1.4.3"
+}
