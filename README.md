@@ -47,7 +47,7 @@ bun run dev status --config /path/to/browser/burrito.toml
 bun run dev status --config /path/to/browser/burrito.toml --json
 ```
 
-The configuration defaults to `./burrito.toml` and must use UTF-8 encoding. The engine must be a Git checkout or linked worktree containing Firefox's `mach` and `moz.build` files. Its configured revision must be a full commit hash available locally.
+The configuration defaults to `./burrito.toml` and must use UTF-8 encoding. The engine must be a Git checkout or linked worktree. Its configured revision must be a full commit hash available locally, with Firefox's `mach` and `moz.build` present as regular files in that commit. Local changes to these files, including deletions, are reported normally.
 
 Status reports the actual HEAD, whether it matches the configured baseline, and working-tree changes. In terminal output, the first change code describes the index and the second describes the working tree; `??` marks untracked files. Filenames are quoted so spaces and newlines remain unambiguous.
 

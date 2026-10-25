@@ -74,8 +74,7 @@ test("rejects an engine directory that resolves to its parent Git repository", a
 
 test("reports a baseline mismatch without switching revisions", async () => {
   const project = await fixture();
-  await writeFile(join(project.engine, "tracked.txt"), "new commit\n");
-  git(project.engine, "add", "tracked.txt");
+  git(project.engine, "rm", "mach", "moz.build");
   git(project.engine, "commit", "-m", "New fixture revision");
   const head = git(project.engine, "rev-parse", "HEAD").trim();
   const report = await getStatus(await loadConfig(project.config));
@@ -91,10 +90,29 @@ test("rejects a configured commit that is unavailable locally", async () => {
   await expect(getStatus(await loadConfig(project.config))).rejects.toThrow("Cannot resolve engine.revision");
 });
 
-test("rejects a Git checkout without Firefox's build entry points", async () => {
+test("reports staged and unstaged deletions of Firefox's build entry points", async () => {
   const project = await fixture();
   await unlink(join(project.engine, "mach"));
-  await expect(getStatus(await loadConfig(project.config))).rejects.toThrow("Firefox mach file");
+  git(project.engine, "rm", "moz.build");
+  const indexPath = join(project.engine, ".git/index");
+  const index = await readFile(indexPath);
+
+  const report = await getStatus(await loadConfig(project.config));
+  expect(report.changes).toEqual([
+    { path: "mach", indexStatus: " ", worktreeStatus: "D" },
+    { path: "moz.build", indexStatus: "D", worktreeStatus: " " },
+  ]);
+  expect(await readFile(indexPath)).toEqual(index);
+});
+
+test("rejects a baseline without Firefox's build entry points even if they exist locally", async () => {
+  const project = await fixture();
+  git(project.engine, "rm", "mach");
+  git(project.engine, "commit", "-m", "Remove Firefox entry point");
+  await writeFile(project.config, configText("engine", git(project.engine, "rev-parse", "HEAD").trim()));
+  await writeFile(join(project.engine, "mach"), "untracked file\n");
+
+  await expect(getStatus(await loadConfig(project.config))).rejects.toThrow("Baseline is missing a Firefox mach file");
 });
 
 test("reports a missing engine without creating it", async () => {

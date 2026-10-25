@@ -60,6 +60,11 @@ function isFileStatus(value: string | undefined): value is FileStatus {
   return value !== undefined && value.length === 1 && " MTADRCU?!".includes(value);
 }
 
+export async function hasCommittedFile(directory: string, revision: string, path: string): Promise<boolean> {
+  const entry = await git(directory, ["ls-tree", "--full-tree", "-z", revision, "--", path]);
+  return /^100(?:644|755) blob /.test(entry);
+}
+
 export function parseStatus(output: string): FileChange[] {
   if (output.length === 0) return [];
   if (!output.endsWith("\0")) {

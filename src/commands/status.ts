@@ -1,8 +1,5 @@
-import { stat } from "node:fs/promises";
-import { join } from "node:path";
-
 import type { ProjectConfig } from "../config.ts";
-import { inspectRepository } from "../git.ts";
+import { hasCommittedFile, inspectRepository } from "../git.ts";
 import type { FileChange } from "../git.ts";
 
 export interface StatusReport {
@@ -17,12 +14,8 @@ export interface StatusReport {
 export async function getStatus(config: ProjectConfig): Promise<StatusReport> {
   const repository = await inspectRepository(config.engine.path, config.engine.revision);
   for (const name of ["mach", "moz.build"]) {
-    try {
-      if (!(await stat(join(repository.root, name))).isFile()) {
-        throw new Error(`${name} must be a file`);
-      }
-    } catch (cause) {
-      throw new Error(`Engine is missing a Firefox ${name} file`, { cause });
+    if (!(await hasCommittedFile(repository.root, repository.baseline, name))) {
+      throw new Error(`Baseline is missing a Firefox ${name} file`);
     }
   }
 
