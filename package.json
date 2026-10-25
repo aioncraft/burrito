@@ -1,11 +1,15 @@
 {
   "name": "burrito",
-  "module": "index.ts",
   "type": "module",
   "private": true,
+  "bin": {
+    "burrito": "./bin/burrito.ts"
+  },
   "scripts": {
-    "dev": "bun run index.ts",
-    "typecheck": "bun check"
+    "dev": "bun run bin/burrito.ts",
+    "typecheck": "bun run --bun tsc --noEmit",
+    "test": "bun test",
+    "check": "bun run typecheck && bun run test"
   },
   "devDependencies": {
     "@types/bun": "1.4.4",
